@@ -8,10 +8,13 @@ import Margin from './src/Margin';
 import Division from './src/Division';
 import FriendSection from './src/ FriendSection';
 import FriendList from './src/FriendList';
+import { useState } from 'react';
 
 export default function App() {
+  const [isOpened, setIsOpened] = useState(true);
+
   const onPressArrow = () =>{
-    console.log("Clicked arrow");
+    setIsOpened(!isOpened)
   }
 
   return (
@@ -33,11 +36,16 @@ export default function App() {
         <FriendSection 
         friendLen={friendProfiles.length}
         onPressArrow = {onPressArrow}
+        isOpened = {isOpened}
         ></FriendSection>
         
         <Margin height={12}></Margin>
 
-        <FriendList data={friendProfiles}></FriendList>
+        <FriendList 
+          data={friendProfiles}
+          isOpened = {isOpened}
+        ></FriendList>
+
       </SafeAreaView>
     </SafeAreaProvider>
   );

@@ -3,7 +3,7 @@ import Margin from "./Margin"
 import Profile from "./Profile"
 
 export default (props) => {
-    return (
+    return props.isOpened && (
         <ScrollView>
             {props.data.map((item,index) => (
                 <View  key = {index}>
@@ -17,6 +17,5 @@ export default (props) => {
                
             ))}
         </ScrollView>
-       
-    )
+    ) 
 }
