@@ -11,7 +11,6 @@ const IconButton = (props) => {
 
 export default ()=> {
     return (
-        //iPhone X 이후 노치가 생성되어 SafeAreaView를 사용하면 상단바 아래부터 View 시작
         <View style={styles.headerContainer}>
             <Text style= {styles.title}>친구</Text>
             <View style = {{flexDirection : "row"}}>
