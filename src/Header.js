@@ -1,11 +1,11 @@
-import { StyleSheet, Text, View } from "react-native"
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { Ionicons } from '@expo/vector-icons';
 
 const IconButton = (props) => {
     return (
-        <View style={{paddingHorizontal:6}}>
+        <TouchableOpacity hitSlop={{top:10 ,bottom:10}} style={{paddingHorizontal:6}}>
             <Ionicons name={props.name} size={24} color="black" />
-        </View>
+        </TouchableOpacity>
     )
 }
 
@@ -14,7 +14,7 @@ export default ()=> {
         <View style={styles.headerContainer}>
             <Text style= {styles.title}>친구</Text>
             <View style = {{flexDirection : "row"}}>
-                <IconButton name="search-outline"></IconButton>
+                <IconButton name="search-outline" ></IconButton>
                 <IconButton name="person-add-outline"></IconButton>
                 <IconButton name="musical-notes-outline"></IconButton>
                 <IconButton name="settings-outline"></IconButton>
