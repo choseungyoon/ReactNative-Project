@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     headerContainer : {
         flexDirection : "row",
         justifyContent : "space-between",
-        paddingVertical : 10
+        paddingVertical : 10,
     },
     title : {
         fontSize : 22,

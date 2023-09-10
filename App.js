@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import Header from './src/Header';
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context"
 import Profile from './src/Profile';
@@ -19,15 +19,29 @@ export default function App() {
     setIsOpened(!isOpened)
   }
 
-  return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.container} edges={['right','left','top','bottom']}>
-        <View style={{flex:1,paddingHorizontal:15}}>
+  const ItemSeparatorComponent = () => <Margin height={13}></Margin>
+  const renderItem = ({item}) => (
+    <View>
+        <Profile 
+            uri={item.uri} 
+            name = {item.name}
+            introduction = {item.introduction}
+            isMe={false}
+        />
+    </View>
+  )
+  const ListHeaderComponent = () => (
+    <View style={{backgroundColor : "white",}}>
           <Header></Header>
           
           <Margin height={10}></Margin>
         
-          <Profile uri={myProfile.uri} name = {myProfile.name}  introduction = {myProfile.introduction}></Profile>
+          <Profile 
+            uri={myProfile.uri} 
+            name = {myProfile.name}  
+            introduction = {myProfile.introduction}
+            isMe={true}
+          ></Profile>
         
           <Margin height={15}></Margin>
         
@@ -40,31 +54,44 @@ export default function App() {
           onPressArrow = {onPressArrow}
           isOpened = {isOpened}
           ></FriendSection>
-        
-          <Margin height={12}></Margin>
+          
+          <Margin height={10}></Margin>
+    </View>
+  )
+  const ListFooterComponent = () => (
+      <Margin height={5}></Margin>
+  )
 
-          <FriendList 
-            data={friendProfiles}
-            isOpened = {isOpened}
-          ></FriendList>
-        </View>
-
-        <TabBar
-          selectedTabIdx= {selectedTabIdx}
-          setSelectedTabIdx = {setSelectedTabIdx}
-        ></TabBar>
-
-      </SafeAreaView>
+  return (
+    <SafeAreaProvider>
+       <SafeAreaView style={styles.container} edges={['right','left','top','bottom']}>
+       <View style={styles.container}>
+          <FlatList 
+            data = {isOpened ?  friendProfiles : []}
+            keyExtractor = {(_,index) => index}
+            stickyHeaderIndices = {[0]}
+            contentContainerStyle = {{paddingHorizontal:15}}
+            ItemSeparatorComponent = {ItemSeparatorComponent}
+            renderItem = {renderItem}
+            ListHeaderComponent = {ListHeaderComponent}
+            ListFooterComponent = {ListFooterComponent}
+          >
+          </FlatList>
+          <TabBar
+            selectedTabIdx= {selectedTabIdx}
+            setSelectedTabIdx = {setSelectedTabIdx}
+          ></TabBar>
+      </View>
+       </SafeAreaView>
+       
     </SafeAreaProvider>
-  );
+
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    //paddingTop : statusBarHeight
-    //alignItems: 'center',
-    //justifyContent: 'center',
   },
 });
