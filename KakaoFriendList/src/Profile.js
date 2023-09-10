@@ -3,7 +3,7 @@ import Margin from "./Margin"
 import styled from "styled-components/native"
 
 const Container = styled.View`
-    flexDirection : row;
+    flex-direction : row;
 `;
 
 const ProfileImage = styled.Image`

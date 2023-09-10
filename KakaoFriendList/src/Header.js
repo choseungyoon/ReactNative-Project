@@ -20,8 +20,6 @@ export default ()=> {
                 <IconButton name="settings-outline"></IconButton>
             </View>
         </View>
-
-       
     )
 }
 
