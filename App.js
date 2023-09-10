@@ -9,9 +9,11 @@ import Division from './src/Division';
 import FriendSection from './src/ FriendSection';
 import FriendList from './src/FriendList';
 import { useState } from 'react';
+import TabBar from './src/TabBar';
 
 export default function App() {
   const [isOpened, setIsOpened] = useState(true);
+  const [selectedTabIdx,setSelectedTabIdx] = useState(0);
 
   const onPressArrow = () =>{
     setIsOpened(!isOpened)
@@ -19,32 +21,38 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container} edges={['right','left','bottom','top']}>
-      
-        <Header></Header>
-      
-        <Margin height={10}></Margin>
-      
-        <Profile uri={myProfile.uri} name = {myProfile.name}  introduction = {myProfile.introduction}></Profile>
-      
-        <Margin height={15}></Margin>
-      
-        <Division></Division>
-
-        <Margin height={12}></Margin>
-
-        <FriendSection 
-        friendLen={friendProfiles.length}
-        onPressArrow = {onPressArrow}
-        isOpened = {isOpened}
-        ></FriendSection>
+      <SafeAreaView style={styles.container} edges={['right','left','top','bottom']}>
+        <View style={{flex:1,paddingHorizontal:15}}>
+          <Header></Header>
+          
+          <Margin height={10}></Margin>
         
-        <Margin height={12}></Margin>
+          <Profile uri={myProfile.uri} name = {myProfile.name}  introduction = {myProfile.introduction}></Profile>
+        
+          <Margin height={15}></Margin>
+        
+          <Division></Division>
 
-        <FriendList 
-          data={friendProfiles}
+          <Margin height={12}></Margin>
+
+          <FriendSection 
+          friendLen={friendProfiles.length}
+          onPressArrow = {onPressArrow}
           isOpened = {isOpened}
-        ></FriendList>
+          ></FriendSection>
+        
+          <Margin height={12}></Margin>
+
+          <FriendList 
+            data={friendProfiles}
+            isOpened = {isOpened}
+          ></FriendList>
+        </View>
+
+        <TabBar
+          selectedTabIdx= {selectedTabIdx}
+          setSelectedTabIdx = {setSelectedTabIdx}
+        ></TabBar>
 
       </SafeAreaView>
     </SafeAreaProvider>
@@ -55,7 +63,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingHorizontal:15,
     //paddingTop : statusBarHeight
     //alignItems: 'center',
     //justifyContent: 'center',
