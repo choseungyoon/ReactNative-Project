@@ -55,14 +55,17 @@ export default () => {
     const [currentOperator,setCurrentOperator] = useState(null);
     const [result,setResult] = useState(null);
     const [tempInput,setTempInput] = useState(null);
-    const [tempOperator,setTempOperator] = useState(null)
+    const [tempOperator,setTempOperator] = useState(null);
+    const [isClickedOperator, setIsClickedOperator] = useState(false);
+    const [isClickedEqual, setIsClickedEqual] = useState(false);
+    
+    const hasInput = !!input;
 
     const onPressNum = (num) => {
-       
-
-        if(currentOperator){
+        if(currentOperator && isClickedOperator){
             setResult(input);
             setInput(num);
+            setIsClickedOperator(false);
         }
         else{
             const newInput = Number(`${input}${num}`);
@@ -72,37 +75,52 @@ export default () => {
 
     const onPressOperator = (operator) => {
         if(operator != '='){
-            setCurrentOperator(operator)
+            setCurrentOperator(operator);
+            setIsClickedOperator(true);
+            setIsClickedEqual(false);
         }
         else{
             let finalResult = result;
-            switch(currentOperator){
+            let finalInput = isClickedEqual ? tempInput :  input;
+            const finalOperator = isClickedEqual ? tempOperator :  currentOperator;
+
+            switch(finalOperator){
                 case '+' :
-                    finalResult = result + input;
+                    finalResult = result + finalInput;
                     break;
                 case '-' :
-                    finalResult = result  - input;
+                    finalResult = result  - finalInput;
                     break;
                 case '%' :
-                    finalResult = result  / input;
+                    finalResult = result  / finalInput;
                     break;
                 case 'X' :
-                    finalResult = result  * input;
+                    finalResult = result  * finalInput;
                     break;
                 default:
                     break;
             }
             setResult(finalResult);
             setInput(finalResult);
+            setTempInput(finalInput);
+            setCurrentOperator(null);
+            setTempOperator(finalOperator);
+            setIsClickedEqual(true);
         }
     }
 
     const onPressReset = () => {
-        setInput(0)
-        setCurrentOperator(null);
-        setTempInput(null);
-        setResult(null)
-        setTempOperator(null);
+        if(hasInput){
+            setInput(0)
+        }
+        else{
+            setInput(0)
+            setCurrentOperator(null);
+            setTempInput(null);
+            setResult(null)
+            setTempOperator(null);
+        }
+
     }
     return (
         <View style={{flex:1 ,width: 250 , justifyContent:"center"}}>
@@ -117,7 +135,7 @@ export default () => {
             {/* [AC ~ /] */}
             <Button
                 type="reset"
-                text="AC"
+                text={hasInput ? "C" : "AC"}
                 onPress={onPressReset}
                 flex={3}
             ></Button>
