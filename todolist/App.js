@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
@@ -6,6 +5,7 @@ import {getCalendarColumns,getDayText,getDayColor, isCurrentMonth} from './src/u
 import { FlatList } from 'react-native';
 import Margin from './src/Margin';
 import { SimpleLineIcons } from '@expo/vector-icons';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 const columnSize = 35;
 
@@ -42,10 +42,19 @@ export default function App() {
 
   const columns = getCalendarColumns(selectedDate);
 
+  const onPressLeftArrow = () => {
+    const newSelectedDate = dayjs(selectedDate).subtract(1,'month');
+    setSelectedDate(newSelectedDate);
+  }
+
+  const onPressRightArrow = () => {
+    const newSelectedDate = dayjs(selectedDate).add(1,'month');
+    setSelectedDate(newSelectedDate);
+  }
+
   const ListHeaderComponent = () => {
 
     const currentDateText = dayjs(selectedDate).format("YYYY.MM.DD")
-
 
     return (
       <View>
@@ -54,14 +63,16 @@ export default function App() {
           {/* <YYYY.MM.DD> */}
           <View style={{ flexDirection:'row' ,justifyContent:"center", alignItems : "center"}}>
             <ArrowButton
-              onPress={()=>{}}
+              onPress={onPressLeftArrow}
               name = "arrow-left"
             ></ArrowButton>
 
-            <Text style={{fontSize:20 , color:"#404040"}}>{currentDateText}</Text>
+            <TouchableOpacity onPress={showDatePicker}>
+             <Text style={{fontSize:20 , color:"#404040"}}>{currentDateText}</Text>
+            </TouchableOpacity>
             
             <ArrowButton
-              onPress={()=>{}}
+              onPress={onPressRightArrow}
               name = "arrow-right"
             ></ArrowButton>
 
@@ -87,6 +98,22 @@ export default function App() {
     </View>
     )
   }
+
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date) => {
+    setSelectedDate(dayjs(date));
+    hideDatePicker();
+  }
+
   const renderItem = ({item : date}) => {
     const dateText = dayjs(date).get('date');
     const day = dayjs(date).get('day');
@@ -117,6 +144,12 @@ export default function App() {
         numColumns={7}
         renderItem={renderItem}
         ListHeaderComponent={ListHeaderComponent}
+      />
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
       />
     </SafeAreaView>
   );
