@@ -1,5 +1,11 @@
 import dayjs from "dayjs";
 
+import { getStatusBarHeight, getBottomSpace } from "react-native-iphone-x-helper"
+
+export const statusBarHeight = getStatusBarHeight(true);
+export const bottomSpace = getBottomSpace();
+export const ITEM_WIDTH = 220;
+
 export const fillEmptyColumns = (columns, start, end) => {
   const filledColumns = columns.slice(0);
 
@@ -68,3 +74,6 @@ export const getDayText = (day) => {
 export const getDayColor = (day) => {
     return day === 0 ? "#e67539" : day === 6 ? "#5872d1" : "#2b2b2b";
 }
+
+
+{/* commend + shift + k => ios keyboard on/off */}

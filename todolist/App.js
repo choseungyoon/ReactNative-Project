@@ -1,42 +1,19 @@
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useEffect, useState } from 'react';
-import dayjs, { Dayjs } from 'dayjs';
-import {getCalendarColumns,getDayText,getDayColor, isCurrentMonth} from './src/util'
+import { Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect,  } from 'react';
+import dayjs from 'dayjs';
+import {ITEM_WIDTH, bottomSpace, getCalendarColumns, statusBarHeight} from './src/util'
+import {Ionicons} from "@expo/vector-icons"
+
 import { FlatList } from 'react-native';
-import Margin from './src/Margin';
-import { SimpleLineIcons } from '@expo/vector-icons';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useCalender } from './src/hook/use-calender';
-
-const columnSize = 35;
-
-const Column = ({text,color,opacity,disabled,onPress,isSelected}) => {
-  return (
-  <TouchableOpacity 
-    disabled = {disabled}
-    onPress={onPress}
-    style={{
-    width: columnSize, 
-    height : columnSize,
-    justifyContent : "center",
-    alignItems : "center",
-    backgroundColor : isSelected ? "#c2c2c2" : "transparent",
-    borderRadius : columnSize / 2}}
-    >
-    <Text style= {{color ,opacity }}>{text}</Text>
-  </TouchableOpacity>
-  )
-}
-
-const ArrowButton = ({name,onPress}) => {
-  return (
-    <TouchableOpacity onPress={onPress} style={{paddingHorizontal : 20 , paddingVertical:15}}>
-      <SimpleLineIcons name={name} size={15} color="black" />
-    </TouchableOpacity>
-  )
-}
+import { useTodoList } from './src/hook/use-todo-list';
+import Calander from './src/Calander';
+import Margin from './src/Margin';
+import AddTodoInput from './src/addTodoInput';
 
 export default function App() {
+
   const now = dayjs()
 
   const {
@@ -49,98 +26,121 @@ export default function App() {
     subtract1Month,
     add1month} = useCalender(now);
 
+  const {
+        todoList,
+        addTodo,
+        removeTodo,
+        toggleTodo,
+        input,
+        setInput,
+        onPressAdd,
+    } = useTodoList(selectedDate);
+
   const columns = getCalendarColumns(selectedDate);
 
   const onPressLeftArrow = subtract1Month;
-
+  const onPressHeaderDate = showDatePicker;
   const onPressRightArrow = add1month;
+  const onPressDate = setSelectedDate;
 
-  const ListHeaderComponent = () => {
-
-    const currentDateText = dayjs(selectedDate).format("YYYY.MM.DD")
-
-    return (
-      <View>
-          <Margin height={15}></Margin>
-
-          {/* <YYYY.MM.DD> */}
-          <View style={{ flexDirection:'row' ,justifyContent:"center", alignItems : "center"}}>
-            <ArrowButton
-              onPress={onPressLeftArrow}
-              name = "arrow-left"
-            ></ArrowButton>
-
-            <TouchableOpacity onPress={showDatePicker}>
-             <Text style={{fontSize:20 , color:"#404040"}}>{currentDateText}</Text>
-            </TouchableOpacity>
-            
-            <ArrowButton
-              onPress={onPressRightArrow}
-              name = "arrow-right"
-            ></ArrowButton>
-
-          </View>
-          {/* 일 ~ 토 */}
-
-          <View style={{flexDirection : "row"}}>
-          {[0,1,2,3,4,5,6].map(day => {
-            const dayText = getDayText(day);
-            const dayColor = getDayColor(day);
-            return (
-              <Column 
-                key={`day-${day}`}
-                text={dayText} 
-                color={dayColor} 
-                opacity={1}
-                disabled={true}
-                >
-              </Column>
-            )
-          })}
-          </View>
-    </View>
-    )
-  }
-
-  const renderItem = ({item : date}) => {
-    const dateText = dayjs(date).get('date');
-    const day = dayjs(date).get('day');
-    const color = getDayColor(day)
-    const isCurrentMonth = dayjs(date).isSame(selectedDate,"month");
-    const onPress = () => {
-      setSelectedDate(date)
-    }
-    const isSelected = dayjs(date).isSame(selectedDate,'date');
-    return (
-      <Column 
-        text={dateText}  
-        color={color}  
-        opacity = {isCurrentMonth ? 1: 0.4}
-        onPress={onPress}
-        isSelected={isSelected}
-        ></Column>
-    )
-  }
-  
   useEffect(()=>{
   },[selectedDate])
 
+  const ListHeaderComponent = () => {
+    return (  
+      <View>
+        <Calander
+        columns = {columns}
+        selectedDate = {selectedDate}
+        onPressLeftArrow = {onPressLeftArrow}
+        onPressHeaderDate = {onPressHeaderDate}
+        onPressRightArrow = {onPressRightArrow}
+        onPressDate ={onPressDate}
+        ></Calander>
+
+        <Margin height={15}></Margin>
+
+        <View style={{
+            alignSelf:"center",
+            width:4, 
+            height : 4, 
+            borderRadius : 10 / 2,
+            backgroundColor:"#a3a3a3"}}>
+
+        </View>
+
+        <Margin height={15}></Margin>
+
+      </View>
+    
+      )
+  
+  }
+
+  const renderItem = ({item:todo}) => {
+    const isSuccess = todo.isSuccess;
+
+    return(
+      <View 
+        style={{
+          width : ITEM_WIDTH,
+          alignSelf : 'center',
+          paddingVertical : 10,
+          paddingHorizontal:5,
+          borderBottomWidth : 0.2,
+          borderColor : "#a6a6a6",
+          flexDirection : "row",
+          }}>
+        <Text style= {{
+          fontSize : 14,
+          color : "#595959",
+          flex : 1
+        }}>{todo.content}</Text>
+
+        <Ionicons 
+          name='ios-checkmark'
+          color= {isSuccess ? "#595959" : "#bfbfbf"}
+          ></Ionicons>
+      </View>
+    )
+  }
   return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={columns}
-        keyExtractor={(_, index) => `column-${index}`}
-        numColumns={7}
-        renderItem={renderItem}
-        ListHeaderComponent={ListHeaderComponent}
-      />
+    <Pressable style={styles.container} onPress={Keyboard.dismiss}>
+
+      <Image source = {{ uri: "https://img.freepik.com/free-photo/white-crumpled-paper-texture-for-background_1373-159.jpg?w=1060&t=st=1667524235~exp=1667524835~hmac=8a3d988d6c33a32017e280768e1aa4037b1ec8078c98fe21f0ea2ef361aebf2c",}}
+        style = {{width:"100%",height:"100%", position : "absolute"}}
+     />
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? "padding" : "height"}
+      >
+        <>
+          <FlatList
+            data={todoList}
+            ListHeaderComponent={ListHeaderComponent}
+            contentContainerStyle = {{paddingTop:statusBarHeight}}
+            renderItem={renderItem}
+          > 
+          </FlatList>
+
+          <AddTodoInput
+            value= {input}
+            onChangeText={setInput}
+            placeholder= {`${dayjs(selectedDate).format('M.DD')}에 추가할 투두`}
+            onPressAdd={onPressAdd}
+          ></AddTodoInput> 
+        </>
+
+      </KeyboardAvoidingView>
+
+      <Margin height={bottomSpace}></Margin>
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
       />
-    </SafeAreaView>
+    </Pressable>
   );
 }
 

@@ -9,13 +9,13 @@ const defaultTodoList = [
         isSuccess : true,
     },
     {
-        id: 1,
+        id: 2,
         content : "강의듣기",
         date : dayjs(),
         isSuccess : false,
 
     },  {
-        id: 1,
+        id: 3,
         content : "카페가기",
         date : dayjs(),
         isSuccess : true,
@@ -57,5 +57,17 @@ export const useTodoList = ({selectedDate}) => {
         setTodoList(newTodoList)
     }
 
-    return  {}
+    const onPressAdd = () => {
+        
+    }
+
+    return  {
+        todoList,
+        addTodo,
+        removeTodo,
+        toggleTodo,
+        input,
+        setInput,
+        onPressAdd,
+    }
 }
