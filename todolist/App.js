@@ -6,6 +6,7 @@ import { FlatList } from 'react-native';
 import Margin from './src/Margin';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { useCalender } from './src/hook/use-calender';
 
 const columnSize = 35;
 
@@ -38,19 +39,21 @@ const ArrowButton = ({name,onPress}) => {
 export default function App() {
   const now = dayjs()
 
-  const [selectedDate,setSelectedDate] = useState(now);
+  const {
+    selectedDate,
+    setSelectedDate,
+    isDatePickerVisible,
+    showDatePicker,
+    hideDatePicker,
+    handleConfirm,
+    subtract1Month,
+    add1month} = useCalender(now);
 
   const columns = getCalendarColumns(selectedDate);
 
-  const onPressLeftArrow = () => {
-    const newSelectedDate = dayjs(selectedDate).subtract(1,'month');
-    setSelectedDate(newSelectedDate);
-  }
+  const onPressLeftArrow = subtract1Month;
 
-  const onPressRightArrow = () => {
-    const newSelectedDate = dayjs(selectedDate).add(1,'month');
-    setSelectedDate(newSelectedDate);
-  }
+  const onPressRightArrow = add1month;
 
   const ListHeaderComponent = () => {
 
@@ -99,21 +102,6 @@ export default function App() {
     )
   }
 
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-
-  const handleConfirm = (date) => {
-    setSelectedDate(dayjs(date));
-    hideDatePicker();
-  }
-
   const renderItem = ({item : date}) => {
     const dateText = dayjs(date).get('date');
     const day = dayjs(date).get('day');
@@ -133,6 +121,7 @@ export default function App() {
         ></Column>
     )
   }
+  
   useEffect(()=>{
   },[selectedDate])
 
