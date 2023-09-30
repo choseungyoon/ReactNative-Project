@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useEffect } from 'react';
-import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import dayjs, { Dayjs } from 'dayjs';
 import {getCalendarColumns,getDayText,getDayColor, isCurrentMonth} from './src/util'
 import { FlatList } from 'react-native';
 import Margin from './src/Margin';
@@ -9,15 +9,21 @@ import { SimpleLineIcons } from '@expo/vector-icons';
 
 const columnSize = 35;
 
-const Column = ({text,color,opacity}) => {
+const Column = ({text,color,opacity,disabled,onPress,isSelected}) => {
   return (
-  <View style={{
+  <TouchableOpacity 
+    disabled = {disabled}
+    onPress={onPress}
+    style={{
     width: columnSize, 
     height : columnSize,
     justifyContent : "center",
-    alignItems : "center"}}>
+    alignItems : "center",
+    backgroundColor : isSelected ? "#c2c2c2" : "transparent",
+    borderRadius : columnSize / 2}}
+    >
     <Text style= {{color ,opacity }}>{text}</Text>
-  </View>
+  </TouchableOpacity>
   )
 }
 
@@ -31,17 +37,19 @@ const ArrowButton = ({name,onPress}) => {
 
 export default function App() {
   const now = dayjs()
-  const columns = getCalendarColumns(now);
+
+  const [selectedDate,setSelectedDate] = useState(now);
+
+  const columns = getCalendarColumns(selectedDate);
 
   const ListHeaderComponent = () => {
 
-    const currentDateText = dayjs(now).format("YYYY.MM.DD")
+    const currentDateText = dayjs(selectedDate).format("YYYY.MM.DD")
 
 
     return (
       <View>
           <Margin height={15}></Margin>
-
 
           {/* <YYYY.MM.DD> */}
           <View style={{ flexDirection:'row' ,justifyContent:"center", alignItems : "center"}}>
@@ -69,7 +77,9 @@ export default function App() {
                 key={`day-${day}`}
                 text={dayText} 
                 color={dayColor} 
-                opacity={1}>
+                opacity={1}
+                disabled={true}
+                >
               </Column>
             )
           })}
@@ -81,14 +91,23 @@ export default function App() {
     const dateText = dayjs(date).get('date');
     const day = dayjs(date).get('day');
     const color = getDayColor(day)
-    const isCurrentMonth = dayjs(date).isSame(now,"month");
+    const isCurrentMonth = dayjs(date).isSame(selectedDate,"month");
+    const onPress = () => {
+      setSelectedDate(date)
+    }
+    const isSelected = dayjs(date).isSame(selectedDate,'date');
     return (
-      <Column text={dateText}  color={color}  opacity = {isCurrentMonth ? 1: 0.4}></Column>
+      <Column 
+        text={dateText}  
+        color={color}  
+        opacity = {isCurrentMonth ? 1: 0.4}
+        onPress={onPress}
+        isSelected={isSelected}
+        ></Column>
     )
   }
   useEffect(()=>{
-    //console.log('columns' , columns)
-  },[])
+  },[selectedDate])
 
   return (
     <SafeAreaView style={styles.container}>
