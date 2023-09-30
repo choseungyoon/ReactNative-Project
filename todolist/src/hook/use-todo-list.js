@@ -57,9 +57,7 @@ export const useTodoList = ({selectedDate}) => {
         setTodoList(newTodoList)
     }
 
-    const onPressAdd = () => {
-        
-    }
+    const resetInput = () => setInput("")
 
     return  {
         todoList,
@@ -68,6 +66,6 @@ export const useTodoList = ({selectedDate}) => {
         toggleTodo,
         input,
         setInput,
-        onPressAdd,
+        resetInput,
     }
 }

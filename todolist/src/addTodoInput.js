@@ -2,7 +2,7 @@ import React from "react";
 import { View, TextInput, TouchableOpacity } from "react-native";
 import { ITEM_WIDTH, bottomSpace } from "./util";
 import {AntDesign} from "@expo/vector-icons";
-export default ({value,onChangeText,placeholder,onPressAdd}) => {
+export default ({value,onChangeText,placeholder,onPressAdd,onSubmitEditing,onFocus}) => {
     return  (
         <View style= {{
             flexDirection:"row",
@@ -18,6 +18,9 @@ export default ({value,onChangeText,placeholder,onPressAdd}) => {
                 color : "#595959",
             }}
             placeholder={placeholder}
+            onSubmitEditing={onSubmitEditing}
+            blurOnSubmit = {false}
+            onFocus={onFocus}
             /> 
             <TouchableOpacity onPress={onPressAdd} style= {{padding : 5}}>
                 <AntDesign 

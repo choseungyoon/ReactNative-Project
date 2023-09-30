@@ -1,21 +1,19 @@
-import { Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useEffect,  } from 'react';
+import { useEffect, useRef } from 'react';
+import { Alert, FlatList, Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import dayjs from 'dayjs';
-import {ITEM_WIDTH, bottomSpace, getCalendarColumns, statusBarHeight} from './src/util'
-import {Ionicons} from "@expo/vector-icons"
-
-import { FlatList } from 'react-native';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { useCalender } from './src/hook/use-calender';
+import { Ionicons } from '@expo/vector-icons';
+
+import { getCalendarColumns, ITEM_WIDTH, statusBarHeight } from './src/util';
+import { useCalendar } from './src/hook/use-calender';
 import { useTodoList } from './src/hook/use-todo-list';
-import Calander from './src/Calander';
+import Calendar from './src/Calander';
 import Margin from './src/Margin';
 import AddTodoInput from './src/addTodoInput';
+import { bottomSpace } from './src/util';
 
 export default function App() {
-
-  const now = dayjs()
-
+  const now = dayjs();
   const {
     selectedDate,
     setSelectedDate,
@@ -24,116 +22,162 @@ export default function App() {
     hideDatePicker,
     handleConfirm,
     subtract1Month,
-    add1month} = useCalender(now);
+    add1Month,
+  } = useCalendar(now);
 
   const {
-        todoList,
-        addTodo,
-        removeTodo,
-        toggleTodo,
-        input,
-        setInput,
-        onPressAdd,
-    } = useTodoList(selectedDate);
+    todoList,
+    input,
+    setInput,
+    toggleTodo,
+    removeTodo,
+    addTodo,
+    resetInput,
+  } = useTodoList(selectedDate);
 
   const columns = getCalendarColumns(selectedDate);
 
+  const flatListRef = useRef(null);
+
   const onPressLeftArrow = subtract1Month;
   const onPressHeaderDate = showDatePicker;
-  const onPressRightArrow = add1month;
+  const onPressRightArrow = add1Month;
   const onPressDate = setSelectedDate;
 
-  useEffect(()=>{
-  },[selectedDate])
+  const ListHeaderComponent = () => (
+    <View>
+      <Calendar
+        columns={columns}
+        selectedDate={selectedDate}
+        onPressLeftArrow={onPressLeftArrow}
+        onPressHeaderDate={onPressHeaderDate}
+        onPressRightArrow={onPressRightArrow}
+        onPressDate={onPressDate}
+      />
+      <Margin height={15} />
 
-  const ListHeaderComponent = () => {
-    return (  
-      <View>
-        <Calander
-        columns = {columns}
-        selectedDate = {selectedDate}
-        onPressLeftArrow = {onPressLeftArrow}
-        onPressHeaderDate = {onPressHeaderDate}
-        onPressRightArrow = {onPressRightArrow}
-        onPressDate ={onPressDate}
-        ></Calander>
-
-        <Margin height={15}></Margin>
-
-        <View style={{
-            alignSelf:"center",
-            width:4, 
-            height : 4, 
-            borderRadius : 10 / 2,
-            backgroundColor:"#a3a3a3"}}>
-
-        </View>
-
-        <Margin height={15}></Margin>
-
-      </View>
-    
-      )
-  
-  }
-
-  const renderItem = ({item:todo}) => {
+      <View
+        style={{ 
+          width: 4, 
+          height: 4, 
+          borderRadius: 4 / 2,
+          backgroundColor: "#a3a3a3",
+          alignSelf: "center",
+        }}
+      />
+      <Margin height={15} />
+    </View>
+  )
+  const renderItem = ({ item: todo }) => {
     const isSuccess = todo.isSuccess;
-
-    return(
-      <View 
-        style={{
-          width : ITEM_WIDTH,
-          alignSelf : 'center',
-          paddingVertical : 10,
-          paddingHorizontal:5,
-          borderBottomWidth : 0.2,
-          borderColor : "#a6a6a6",
-          flexDirection : "row",
-          }}>
-        <Text style= {{
-          fontSize : 14,
-          color : "#595959",
-          flex : 1
-        }}>{todo.content}</Text>
+    const onPress = () => toggleTodo(todo.id);
+    const onLongPress = () => {
+      Alert.alert("삭제하시겠어요?", "", [
+        {
+          style: "cancel",
+          text: "아니요"
+        },
+        {
+          text: "네",
+          onPress: () => removeTodo(todo.id),
+        }
+      ])
+    };
+    return (
+      <Pressable
+        onPress={onPress}
+        onLongPress={onLongPress}
+        style={{ 
+          flexDirection: "row",
+          width: ITEM_WIDTH, 
+          alignSelf: "center",
+          paddingVertical: 10,
+          paddingHorizontal: 5,
+          borderBottomWidth: 0.2,
+          borderColor: "#a6a6a6",
+          // backgroundColor: todo.id % 2 === 0 ? "pink" : "lightblue",
+        }}>
+        <Text style={{ flex: 1, fontSize: 14, color: "#595959" }}>{todo.content}</Text>
 
         <Ionicons 
-          name='ios-checkmark'
-          color= {isSuccess ? "#595959" : "#bfbfbf"}
-          ></Ionicons>
-      </View>
+          name="ios-checkmark" 
+          size={17} 
+          color={isSuccess ? "#595959" : "#bfbfbf"}
+        />
+      </Pressable>
     )
   }
-  return (
-    <Pressable style={styles.container} onPress={Keyboard.dismiss}>
+  const scrollToEnd = () => {
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 300);
+  }
+  const onPressAdd = () => {
+    addTodo();
+    resetInput();
+    scrollToEnd();
+  }
+  const onSubmitEditing = () => {
+    addTodo();
+    resetInput();
+    scrollToEnd();
+  }
+  const onFocus = () => {
+    scrollToEnd();
+  };
 
-      <Image source = {{ uri: "https://img.freepik.com/free-photo/white-crumpled-paper-texture-for-background_1373-159.jpg?w=1060&t=st=1667524235~exp=1667524835~hmac=8a3d988d6c33a32017e280768e1aa4037b1ec8078c98fe21f0ea2ef361aebf2c",}}
-        style = {{width:"100%",height:"100%", position : "absolute"}}
-     />
+  useEffect(() => {
+  }, []);
+
+  return (
+    <Pressable 
+      style={styles.container} 
+      // onPress={() => Keyboard.dismiss()}
+      onPress={Keyboard.dismiss}
+    >
+      {/* <TouchableOpacity activeOpacity={1}>
+
+      </TouchableOpacity> */}
+      <Image
+        source={{
+          // 출처: https://kr.freepik.com/free-photo/white-crumpled-paper-texture-for-background_1189772.htm
+          uri: "https://img.freepik.com/free-photo/white-crumpled-paper-texture-for-background_1373-159.jpg?w=1060&t=st=1667524235~exp=1667524835~hmac=8a3d988d6c33a32017e280768e1aa4037b1ec8078c98fe21f0ea2ef361aebf2c",
+        }}
+        style={{
+          width: "100%",
+          height: "100%",
+          position: "absolute",
+        }}
+      />
 
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? "padding" : "height"}
-      >
+        behavior={Platform.OS === "ios" ? "padding" : "height"}>
         <>
           <FlatList
+            ref={flatListRef}
             data={todoList}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ 
+              paddingTop: statusBarHeight + 30
+            }}
             ListHeaderComponent={ListHeaderComponent}
-            contentContainerStyle = {{paddingTop:statusBarHeight}}
             renderItem={renderItem}
-          > 
-          </FlatList>
+            showsVerticalScrollIndicator={false}
+          />
 
           <AddTodoInput
-            value= {input}
+            value={input}
             onChangeText={setInput}
-            placeholder= {`${dayjs(selectedDate).format('M.DD')}에 추가할 투두`}
+            placeholder={`${dayjs(selectedDate).format('MM.D')}에 추가할 투두`}
             onPressAdd={onPressAdd}
-          ></AddTodoInput> 
+            onSubmitEditing={onSubmitEditing}
+            onFocus={onFocus}
+          />
         </>
-
       </KeyboardAvoidingView>
 
-      <Margin height={bottomSpace}></Margin>
+      <Margin height={bottomSpace} />
+
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"
