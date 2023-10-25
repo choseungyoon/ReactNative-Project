@@ -66,6 +66,7 @@ export const useTodoList = (selectedDate) => {
     console.log(filteredTodoList)
     return  {
         filteredTodoList,
+        todoList,
         addTodo,
         removeTodo,
         toggleTodo,
