@@ -4,6 +4,7 @@ import useGallery from './src/use-gallery';
 import { FlatList } from 'react-native';
 import MyDropDownPicker from './src/MyDropDownPicker';
 import TextInputModal from './src/TextInputModal';
+import BigImageModal from './src/BigImageModal';
 
 const width = Dimensions.get('screen').width;
 const columnSize = width / 3
@@ -15,9 +16,9 @@ export default function App() {
     pickImage,
     deleteImage,
     selectedAlbum,
-    modalVisible,
-    openModal,
-    closeModal,
+    textInputModalVisible,
+    openTextInputModal,
+    closeTextInputModal,
     albumTitle,
     setAlbumTitle,
     addAlbum,
@@ -26,7 +27,13 @@ export default function App() {
     openDropDown,
     closeDropDown,
     albums,
-    selectAlbum} = useGallery()
+    selectAlbum,
+    deleteAlbum,
+    bigImageModalVisible,
+    openBigImageModal,
+    closeBigImageModal,
+    selectImage,
+    selectedImage} = useGallery()
 
   const onPressOpenGallery = () => {
     pickImage()
@@ -35,7 +42,7 @@ export default function App() {
   const onLongPressImage = (imageId) => deleteImage(imageId)
 
   const onPressAddAlbum = () => {
-    openModal();
+    openTextInputModal();
   }
   
   const onSubmitEditing = () => {
@@ -43,12 +50,16 @@ export default function App() {
     // 1. 앨범에 타이틀 추가
     addAlbum()
     // 2. 모달닫기 , textInput 초기화=
-    closeModal()
+    closeTextInputModal()
     resetAlbumTitle()
   }
 
-  const onPressBackDrop = () => {
-    closeModal();
+  const onPressTextInputModalBackDrop = () => {
+    closeTextInputModal();
+  }
+
+  const onPressBigImageModalBackdrop = () => {
+    closeBigImageModal();
   }
 
   const onPressHeader = () => {
@@ -57,12 +68,21 @@ export default function App() {
   }
 
   const onPressAlbum = (album) => {
-    selectAlbum(album)
-    closeDropDown( )
+    selectAlbum(album);
+    closeDropDown();
   };
 
-  const renderItem = ({item : {id,uri}, index}) => {
- 
+  const onLongPressAlbum = (albumId) => {
+    deleteAlbum(albumId);
+  }
+
+  const onPressImage = (image) => {
+    selectImage(image);
+    openBigImageModal()
+  }
+
+  const renderItem = ({item : image, index}) => {
+    const {id,uri} = image;
     if (id === -1) {
       return  (
         <TouchableOpacity 
@@ -78,7 +98,7 @@ export default function App() {
       )
     }
     return (  
-    <TouchableOpacity onLongPress={()=>onLongPressImage(id)}>
+    <TouchableOpacity onPress={()=> onPressImage(image)} onLongPress={()=>onLongPressImage(id)}>
       <Image 
         source={{uri}} 
         style={{width:columnSize , height:columnSize}}>
@@ -97,15 +117,23 @@ export default function App() {
         isDropDownOpen = {isDropDownOpen}
         albums = {albums}
         onPressAlbum = {onPressAlbum}
+        onLongPressAlbum = {onLongPressAlbum}
         ></MyDropDownPicker>
 
       {/* 앨범을 추가하는 TextInputModal*/}  
       <TextInputModal 
-        modalVisible={modalVisible}  
+        textInputModalVisible={textInputModalVisible}  
         albumTitle = {albumTitle}
         setAlbumTitle = {setAlbumTitle}
         onSubmitEditing = {onSubmitEditing}
-        onPressBackDrop = {onPressBackDrop}></TextInputModal>
+        onPressBackDrop = {onPressTextInputModalBackDrop}></TextInputModal>
+
+      {/* 이미지를 크게 보는 Modal */}
+      <BigImageModal
+        modalVisible = {bigImageModalVisible}
+        onPressBackdrop = {onPressBigImageModalBackdrop}
+        selectedImage = {selectedImage}
+      ></BigImageModal>
 
       {/* 이미지 리스트 */}
       <FlatList
